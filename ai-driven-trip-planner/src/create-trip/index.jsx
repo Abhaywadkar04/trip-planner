@@ -9,15 +9,18 @@ import {
 import { Button } from "../components/ui/button";
 import { toast } from "sonner";
 import { chatSession } from "../service/AIModel";
+import { FcGoogle } from "react-icons/fc";
+import axios from "axios";
 import TripOutput from "./trip-out";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogDescription,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-// } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useGoogleLogin } from "@react-oauth/google";
 
 function CreateTrip() {
   const [place, setPlace] = useState();
@@ -39,11 +42,11 @@ function CreateTrip() {
   }, [formData]);
 
   const OnGenerateTrips = async () => {
-    // const user = localStorage.getItem("user");
-    // if (!user) {
-    //   setOpenDialog(true);
-    //   return;
-    // }
+    const user = localStorage.getItem("user");
+    if (!user) {
+      setOpenDialog(true);
+      return;
+    }
 
     if (
       formData?.noOfDays > 5 &&
@@ -73,6 +76,38 @@ function CreateTrip() {
       console.error(err);
     }
   };
+
+  const getUserProfile = (tokenInfo) => {
+    axios
+      .get(
+        `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${tokenInfo.access_token}`,
+        {
+          headers: {
+            Authorization: `Bearer ${tokenInfo?.access_token}`,
+            Accept: "application/json",
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        localStorage.setItem("user", JSON.stringify(res.data));
+        setOpenDialog(false);
+        OnGenerateTrips();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const login = useGoogleLogin({
+    onSuccess: (tokenResponse) => {
+      console.log("Login Success:", tokenResponse);
+      getUserProfile(tokenResponse);
+    },
+    onError: (error) => {
+      console.log("Login Error:", error);
+    },
+  });
 
   return (
     <div className="sm:px-10 md:px-32 lg:px-56 xl:px-72 px-5 mt-10">
@@ -185,21 +220,31 @@ function CreateTrip() {
       <div className="my-10 flex justify-end">
         <Button onClick={OnGenerateTrips}>Generate Trip</Button>
       </div>
+      <Dialog open={openDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sign In</DialogTitle>
+            <DialogDescription>
+              Sign in to the App with secure Google authentication.
+            </DialogDescription>
+          </DialogHeader>
 
-{/* 
-            <Dialog open={openDialog} >
-  <DialogContent>
-    <DialogHeader>
-      <DialogDescription>
-        This action cannot be undone. This will permanently delete your account
-        and remove your data from our servers.
-      </DialogDescription>
-    </DialogHeader>
-  </DialogContent>
-</Dialog> */}
+          {/* Don't put these inside DialogDescription */}
+          <img src="logo.svg" alt="App Logo" className="mx-auto mt-4" />
 
+          <h2 className="font-bold text-lg mt-7 text-center">
+            Sign In With Google
+          </h2>
 
-
+          <Button
+            onClick={login}
+            className="w-full mt-5 flex gap-4 items-center justify-center"
+          >
+            <FcGoogle className="h-7 w-7" />
+            Sign In
+          </Button>
+        </DialogContent>
+      </Dialog>
       ✅ Output Section
       {/* {tripResult && (
         <div className="bg-gray-50 p-6 rounded-xl shadow mt-10">
