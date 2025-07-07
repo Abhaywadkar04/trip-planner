@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import GooglePlaceAutoComplete from "react-google-autocomplete";
 import { Input } from "../components/ui/input";
 import {
@@ -21,7 +21,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useGoogleLogin } from "@react-oauth/google";
-
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../service/Firebaseconfig";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
 function CreateTrip() {
   const [place, setPlace] = useState();
   const [formData, setFormData] = useState([]);
@@ -29,7 +32,8 @@ function CreateTrip() {
   const [selectedTravellers, setSelectedTravellers] = useState(null);
   const [tripResult, setTripResult] = useState(""); // ✅ result display
   const [openDialog, setOpenDialog] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const handleChange = (name, value) => {
     setFormData({
       ...formData,
@@ -40,6 +44,8 @@ function CreateTrip() {
   useEffect(() => {
     console.log(formData);
   }, [formData]);
+
+  // Optional: fix Google Maps LatLng if present in formData
 
   const OnGenerateTrips = async () => {
     const user = localStorage.getItem("user");
@@ -55,7 +61,7 @@ function CreateTrip() {
       toast("Please fill all the fields");
       return;
     }
-
+    setIsLoading(true);
     const FINAL_PROMPT = AI_PROMPT.replace(
       "{location}",
       formData?.location?.formatted_address
@@ -71,9 +77,255 @@ function CreateTrip() {
       const response = await result.response.text();
       setTripResult(response); // ✅ store in state to display
       console.log("AI Response:", response);
+
+      SaveAiTrip(response);
     } catch (err) {
       toast.error("Something went wrong with AI response");
       console.error(err);
+    }
+    setIsLoading(false);
+  };
+
+  // const SaveAiTrip = async (TripData) => {
+  //   setIsLoading(true);
+  //   const user = JSON.parse(localStorage.getItem("user"));
+  //   const docId = Date.now().toString(); // Generate a unique ID based on timestamp
+  //   await setDoc(doc(db, "AiTrips", docId), {
+  //     userSelection: formData,
+  //     tripData: JSON.parse(TripData),
+  //     userEmail: user?.email,
+  //     id: docId, // Add the unique ID to the document
+  //   });
+  //   setIsLoading(false);
+  // };
+
+  // const SaveAiTrip = async (TripData, formData, setIsLoading) => {
+  //   try {
+  //     setIsLoading(true);
+  //     const user = JSON.parse(localStorage.getItem("user"));
+  //     const docId = Date.now().toString();
+
+  //     let cleanedFormData;
+  //     try {
+  //       cleanedFormData = structuredClone(formData);
+  //     } catch {
+  //       cleanedFormData = JSON.parse(JSON.stringify(formData));
+  //     }
+
+  //     const loc = cleanedFormData?.location?.geometry?.location;
+  //     if (
+  //       loc &&
+  //       typeof loc.lat === "function" &&
+  //       typeof loc.lng === "function"
+  //     ) {
+  //       cleanedFormData.location.geometry.location = sanitizeLatLng(loc);
+  //     }
+
+  //     console.log("Data being saved:", JSON.stringify(TripData, null, 2));
+  //     console.log(
+  //       "Type of data fields:",
+  //       Object.entries(TripData).map(([k, v]) => [k, typeof v])
+  //     );
+
+  //     await setDoc(doc(db, "AiTrips", docId), {
+  //       userSelection: cleanedFormData,
+  //       tripData: TripData,
+  //       userEmail: user?.email || "guest@demo.com",
+  //       id: docId,
+  //     });
+
+  //     toast.success("✅ Trip saved successfully!");
+  //   } catch (err) {
+  //     console.error("🔥 Firestore write failed:", err.message, err);
+  //     toast.error("❌ Failed to save trip.");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  // const SaveAiTrip = async (TripData) => {
+  //   setIsLoading(true);
+  //   try {
+  //     console.log("Original TripData:", TripData);
+  //     const user = JSON.parse(localStorage.getItem("user"));
+  //     const docId = Date.now().toString();
+
+  //     let cleanedTripData = TripData;
+
+  //     // Remove markdown code blocks from beginning and end
+  //     cleanedTripData = cleanedTripData.replace(/^```json\s*/g, '');
+  //     cleanedTripData = cleanedTripData.replace(/```.*$/g, ''); // Remove ``` and everything after it
+
+  //     // Remove JavaScript-style comments
+  //     cleanedTripData = cleanedTripData.replace(/\/\/.*$/gm, '');
+
+  //     // Remove trailing commas
+  //     cleanedTripData = cleanedTripData.replace(/,(\s*[}\]])/g, '$1');
+
+  //     // Remove control characters
+  //     cleanedTripData = cleanedTripData.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+
+  //     // Fix incomplete URLs - this is the main issue
+  //     // Pattern: "₹500 - ₹1500 (INR)",       "hotelImageUrl": "Insert Image URL H
+  //     // Should be: "₹500 - ₹1500 (INR)", "hotelImageUrl": "Insert Image URL Here"
+  //     cleanedTripData = cleanedTripData.replace(/"Insert Image URL H[^"]*"/g, '"https://example.com/placeholder.jpg"');
+
+  //     // Fix other incomplete URL patterns
+  //     cleanedTripData = cleanedTripData.replace(/"https:\s*"([a-zA-Z]+)"/g, '"https://example.com/placeholder.jpg", "$1"');
+  //     cleanedTripData = cleanedTripData.replace(/"http:\s*"([a-zA-Z]+)"/g, '"http://example.com/placeholder.jpg", "$1"');
+
+  //     // Fix incomplete "Insert Image URL Here" patterns
+  //     cleanedTripData = cleanedTripData.replace(/"Insert Image URL[^"]*"/g, '"https://example.com/placeholder.jpg"');
+
+  //     // Extract only the JSON part (from first { to last })
+  //     const firstBrace = cleanedTripData.indexOf('{');
+  //     const lastBrace = cleanedTripData.lastIndexOf('}');
+
+  //     if (firstBrace === -1 || lastBrace === -1) {
+  //       throw new Error('No valid JSON structure found');
+  //     }
+
+  //     cleanedTripData = cleanedTripData.substring(firstBrace, lastBrace + 1);
+
+  //     console.log("Cleaned TripData after URL fix:", cleanedTripData);
+
+  //     // Parse the cleaned data
+  //     const parsedData = JSON.parse(cleanedTripData);
+  //     console.log("Successfully parsed data:", parsedData);
+
+  //     // Save to Firebase
+  //     await setDoc(doc(db, "AiTrips", docId), {
+  //       userSelection: formData,
+  //       tripData: parsedData,
+  //       userEmail: user?.email,
+  //       id: docId,
+  //     });
+
+  //     console.log("Trip saved successfully!");
+  //     setIsLoading(false);
+
+  //     // Navigate to the trip view page (add this line if missing)
+  //     navigate('/view-trip/' + docId);
+
+  //   } catch (error) {
+  //     console.error("Error saving trip:", error);
+  //     console.error("Error details:", {
+  //       name: error.name,
+  //       message: error.message,
+  //       stack: error.stack
+  //     });
+
+  //     // Log the problematic data for debugging
+  //     console.error("Problematic data:", TripData);
+
+  //     setIsLoading(false);
+
+  //     // Show user-friendly error message
+  //     alert('Error saving trip. Please try generating the trip again.');
+  //   }
+  // };*****************
+
+  const SaveAiTrip = async (TripData) => {
+    setIsLoading(true);
+    try {
+      console.log("formdata", formData);
+      console.log("Original TripData:", TripData);
+      const user = JSON.parse(localStorage.getItem("user"));
+      const docId = Date.now().toString();
+
+      let cleanedTripData = TripData;
+
+      // Remove markdown code blocks from beginning and end
+      cleanedTripData = cleanedTripData.replace(/^```json\s*/g, "");
+      cleanedTripData = cleanedTripData.replace(/```.*$/g, ""); // Remove ``` and everything after it
+
+      // Remove JavaScript-style comments
+      cleanedTripData = cleanedTripData.replace(/\/\/.*$/gm, "");
+
+      // Remove trailing commas
+      cleanedTripData = cleanedTripData.replace(/,(\s*[}\]])/g, "$1");
+
+      // Remove control characters
+      cleanedTripData = cleanedTripData.replace(/[\x00-\x1F\x7F-\x9F]/g, "");
+
+      // Fix incomplete URLs - this is the main issue
+      // Pattern: "₹500 - ₹1500 (INR)",       "hotelImageUrl": "Insert Image URL H
+      // Should be: "₹500 - ₹1500 (INR)", "hotelImageUrl": "Insert Image URL Here"
+      cleanedTripData = cleanedTripData.replace(
+        /"Insert Image URL H[^"]*"/g,
+        '"https://example.com/placeholder.jpg"'
+      );
+
+      // Fix other incomplete URL patterns
+      cleanedTripData = cleanedTripData.replace(
+        /"https:\s*"([a-zA-Z]+)"/g,
+        '"https://example.com/placeholder.jpg", "$1"'
+      );
+      cleanedTripData = cleanedTripData.replace(
+        /"http:\s*"([a-zA-Z]+)"/g,
+        '"http://example.com/placeholder.jpg", "$1"'
+      );
+
+      // Fix incomplete "Insert Image URL Here" patterns
+      cleanedTripData = cleanedTripData.replace(
+        /"Insert Image URL[^"]*"/g,
+        '"https://example.com/placeholder.jpg"'
+      );
+
+      // Extract only the JSON part (from first { to last })
+      const firstBrace = cleanedTripData.indexOf("{");
+      const lastBrace = cleanedTripData.lastIndexOf("}");
+
+      if (firstBrace === -1 || lastBrace === -1) {
+        throw new Error("No valid JSON structure found");
+      }
+
+      cleanedTripData = cleanedTripData.substring(firstBrace, lastBrace + 1);
+
+      console.log("Cleaned TripData after URL fix:", cleanedTripData);
+
+      // Parse the cleaned data
+      const parsedData = JSON.parse(cleanedTripData);
+      console.log("Successfully parsed data:", parsedData);
+
+      // Clean formData to remove unsupported objects for Firebase
+      const cleanedFormData = {
+        ...parsedData,
+      };
+      const Cleaned = {
+        ...formData,
+      };
+
+      console.log("Cleaned form data:", cleanedFormData);
+
+      // Save to Firebase
+      await setDoc(doc(db, "AiTrips", docId), {
+        userSelection: cleanedFormData,
+        tripData: cleanedFormData,
+        userEmail: user?.email,
+        id: docId,
+      });
+
+      console.log("Trip saved successfully!");
+      setIsLoading(false);
+      navigate("/view-trip/" + docId); // ✅ Navigate to the trip view page
+
+      // Navigate to the trip view page (add this line if missing)
+    } catch (error) {
+      console.error("Error saving trip:", error);
+      console.error("Error details:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      });
+
+      // Log the problematic data for debugging
+      console.error("Problematic data:", TripData);
+
+      setIsLoading(false);
+
+      // Show user-friendly error message
+      alert("Error saving trip. Please try generating the trip again.");
     }
   };
 
@@ -218,7 +470,14 @@ function CreateTrip() {
         </div>
       </div>
       <div className="my-10 flex justify-end">
-        <Button onClick={OnGenerateTrips}>Generate Trip</Button>
+        {isLoading ? (
+          <AiOutlineLoading3Quarters className="h-7 w-7 animate-spin " />
+        ) : (
+          <span>Generate Trip</span>
+        )}
+        <Button disabled={isLoading} onClick={OnGenerateTrips}>
+          Generate Trip
+        </Button>
       </div>
       <Dialog open={openDialog}>
         <DialogContent>
