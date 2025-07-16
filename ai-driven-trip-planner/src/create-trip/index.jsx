@@ -86,145 +86,6 @@ function CreateTrip() {
     setIsLoading(false);
   };
 
-  // const SaveAiTrip = async (TripData) => {
-  //   setIsLoading(true);
-  //   const user = JSON.parse(localStorage.getItem("user"));
-  //   const docId = Date.now().toString(); // Generate a unique ID based on timestamp
-  //   await setDoc(doc(db, "AiTrips", docId), {
-  //     userSelection: formData,
-  //     tripData: JSON.parse(TripData),
-  //     userEmail: user?.email,
-  //     id: docId, // Add the unique ID to the document
-  //   });
-  //   setIsLoading(false);
-  // };
-
-  // const SaveAiTrip = async (TripData, formData, setIsLoading) => {
-  //   try {
-  //     setIsLoading(true);
-  //     const user = JSON.parse(localStorage.getItem("user"));
-  //     const docId = Date.now().toString();
-
-  //     let cleanedFormData;
-  //     try {
-  //       cleanedFormData = structuredClone(formData);
-  //     } catch {
-  //       cleanedFormData = JSON.parse(JSON.stringify(formData));
-  //     }
-
-  //     const loc = cleanedFormData?.location?.geometry?.location;
-  //     if (
-  //       loc &&
-  //       typeof loc.lat === "function" &&
-  //       typeof loc.lng === "function"
-  //     ) {
-  //       cleanedFormData.location.geometry.location = sanitizeLatLng(loc);
-  //     }
-
-  //     console.log("Data being saved:", JSON.stringify(TripData, null, 2));
-  //     console.log(
-  //       "Type of data fields:",
-  //       Object.entries(TripData).map(([k, v]) => [k, typeof v])
-  //     );
-
-  //     await setDoc(doc(db, "AiTrips", docId), {
-  //       userSelection: cleanedFormData,
-  //       tripData: TripData,
-  //       userEmail: user?.email || "guest@demo.com",
-  //       id: docId,
-  //     });
-
-  //     toast.success("✅ Trip saved successfully!");
-  //   } catch (err) {
-  //     console.error("🔥 Firestore write failed:", err.message, err);
-  //     toast.error("❌ Failed to save trip.");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // const SaveAiTrip = async (TripData) => {
-  //   setIsLoading(true);
-  //   try {
-  //     console.log("Original TripData:", TripData);
-  //     const user = JSON.parse(localStorage.getItem("user"));
-  //     const docId = Date.now().toString();
-
-  //     let cleanedTripData = TripData;
-
-  //     // Remove markdown code blocks from beginning and end
-  //     cleanedTripData = cleanedTripData.replace(/^```json\s*/g, '');
-  //     cleanedTripData = cleanedTripData.replace(/```.*$/g, ''); // Remove ``` and everything after it
-
-  //     // Remove JavaScript-style comments
-  //     cleanedTripData = cleanedTripData.replace(/\/\/.*$/gm, '');
-
-  //     // Remove trailing commas
-  //     cleanedTripData = cleanedTripData.replace(/,(\s*[}\]])/g, '$1');
-
-  //     // Remove control characters
-  //     cleanedTripData = cleanedTripData.replace(/[\x00-\x1F\x7F-\x9F]/g, '');
-
-  //     // Fix incomplete URLs - this is the main issue
-  //     // Pattern: "₹500 - ₹1500 (INR)",       "hotelImageUrl": "Insert Image URL H
-  //     // Should be: "₹500 - ₹1500 (INR)", "hotelImageUrl": "Insert Image URL Here"
-  //     cleanedTripData = cleanedTripData.replace(/"Insert Image URL H[^"]*"/g, '"https://example.com/placeholder.jpg"');
-
-  //     // Fix other incomplete URL patterns
-  //     cleanedTripData = cleanedTripData.replace(/"https:\s*"([a-zA-Z]+)"/g, '"https://example.com/placeholder.jpg", "$1"');
-  //     cleanedTripData = cleanedTripData.replace(/"http:\s*"([a-zA-Z]+)"/g, '"http://example.com/placeholder.jpg", "$1"');
-
-  //     // Fix incomplete "Insert Image URL Here" patterns
-  //     cleanedTripData = cleanedTripData.replace(/"Insert Image URL[^"]*"/g, '"https://example.com/placeholder.jpg"');
-
-  //     // Extract only the JSON part (from first { to last })
-  //     const firstBrace = cleanedTripData.indexOf('{');
-  //     const lastBrace = cleanedTripData.lastIndexOf('}');
-
-  //     if (firstBrace === -1 || lastBrace === -1) {
-  //       throw new Error('No valid JSON structure found');
-  //     }
-
-  //     cleanedTripData = cleanedTripData.substring(firstBrace, lastBrace + 1);
-
-  //     console.log("Cleaned TripData after URL fix:", cleanedTripData);
-
-  //     // Parse the cleaned data
-  //     const parsedData = JSON.parse(cleanedTripData);
-  //     console.log("Successfully parsed data:", parsedData);
-
-  //     // Save to Firebase
-  //     await setDoc(doc(db, "AiTrips", docId), {
-  //       userSelection: formData,
-  //       tripData: parsedData,
-  //       userEmail: user?.email,
-  //       id: docId,
-  //     });
-
-  //     console.log("Trip saved successfully!");
-  //     setIsLoading(false);
-
-  //     // Navigate to the trip view page (add this line if missing)
-  //     navigate('/view-trip/' + docId);
-
-  //   } catch (error) {
-  //     console.error("Error saving trip:", error);
-  //     console.error("Error details:", {
-  //       name: error.name,
-  //       message: error.message,
-  //       stack: error.stack
-  //     });
-
-  //     // Log the problematic data for debugging
-  //     console.error("Problematic data:", TripData);
-
-  //     setIsLoading(false);
-
-  //     // Show user-friendly error message
-  //     alert('Error saving trip. Please try generating the trip again.');
-  //   }
-  // };*****************
-
   const SaveAiTrip = async (TripData) => {
     setIsLoading(true);
     try {
@@ -473,7 +334,7 @@ function CreateTrip() {
         {isLoading ? (
           <AiOutlineLoading3Quarters className="h-7 w-7 animate-spin " />
         ) : (
-          <span>Generate Trip</span>
+          ""
         )}
         <Button disabled={isLoading} onClick={OnGenerateTrips}>
           Generate Trip
@@ -504,25 +365,6 @@ function CreateTrip() {
           </Button>
         </DialogContent>
       </Dialog>
-      ✅ Output Section
-      {/* {tripResult && (
-        <div className="bg-gray-50 p-6 rounded-xl shadow mt-10">
-          <h2 className="text-xl font-bold mb-4 text-[#f56551]">🎉 Trip Plan Generated</h2>
-          <pre className="whitespace-pre-wrap text-sm text-gray-800 overflow-x-auto">
-            {(() => {
-              try {
-                return JSON.stringify(JSON.parse(tripResult), null, 2);
-              } catch (e) {
-                return tripResult;
-              }
-            })()}
-          </pre>
-        </div>
-      )} */}
-      {/* ✅ Output Section */}
-      {/* {tripResult && (
-  <TripOutput tripResult={tripResult} />
-)} */}
     </div>
   );
 }

@@ -1,11 +1,50 @@
-import React from 'react'
+import React, { use } from 'react'
 import { Button } from "@/components/ui/button";
 import { BsFillSendFill } from "react-icons/bs";
+import { GetplaceDetails } from '../../../service/Global';
+import { useEffect } from 'react';
+import { useState } from 'react';
+
+
+
+const PHOTO_REF_URL = `https://places.googleapis.com/v1/{NAME}/media?key=${import.meta.env.VITE_GOOGLE_PLACE_API_KEY}&maxWidthPx=800`;
 function InfoSection({ trip }) {
+
+const [photoUrl, setPhotoUrl] = useState();
+
+
+
+  useEffect(() => {
+   trip &&  getPlacePhoto();
+  }, [trip]);
+const getPlacePhoto = async () => {
+  const data = {
+    textQuery: trip?.userSelection?.location
+  };
+
+  try {
+    const resp = await GetplaceDetails(data);
+    const photoName = resp.data.places?.[0]?.photos?.[0]?.name;
+
+    if (!photoName) {
+      console.warn("No photo found for this place.");
+      return null;
+    }
+
+    const photoUrl = PHOTO_REF_URL.replace('{NAME}', photoName);
+    setPhotoUrl(photoUrl);
+
+    return photoUrl;
+  } catch (err) {
+    console.error("Error fetching place photo:", err);
+    return null;
+  }
+};
+
   return (
     <div>
 
-        <img src='/placeholder.jpg' alt='Trip Placeholder' className='h-[340px] w-full object-cover rounded-xl'></img>
+        <img src={photoUrl} alt='Trip Placeholder' className='h-[340px] w-full object-cover rounded-xl'></img>
 
 
 
