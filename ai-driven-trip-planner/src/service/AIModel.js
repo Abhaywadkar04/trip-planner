@@ -8,7 +8,7 @@ const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
 const generationConfig = {
-  temperature: 1,
+  temperature: 0.3,
   topP: 0.95,
   topK: 64,
   maxOutputTokens: 8192,
