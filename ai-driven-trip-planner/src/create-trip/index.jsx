@@ -26,6 +26,208 @@ import { db } from "../service/Firebaseconfig";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 
+// Beautiful Loading Component
+const TravelLoadingScreen = ({ destination, days }) => {
+  const [currentMessage, setCurrentMessage] = useState(0);
+  const [progress, setProgress] = useState(0);
+
+  const loadingMessages = [
+    "🌍 Analyzing your dream destination...",
+    "🧠 AI is crafting your perfect itinerary...",
+    "🏨 Finding the best accommodations...",
+    "🍽️ Discovering amazing local cuisines...",
+    "🎯 Optimizing your travel experience...",
+    "✨ Almost ready! Final touches...",
+  ];
+
+  useEffect(() => {
+    const messageInterval = setInterval(() => {
+      setCurrentMessage((prev) => (prev + 1) % loadingMessages.length);
+    }, 2000);
+
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 95) return prev;
+        return prev + Math.random() * 15;
+      });
+    }, 300);
+
+    return () => {
+      clearInterval(messageInterval);
+      clearInterval(progressInterval);
+    };
+  }, []);
+
+  return (
+    <div className="fixed inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-orange-50 z-50 flex items-center justify-center">
+      <div className="text-center max-w-2xl mx-auto px-6">
+        {/* Animated Travel Scene */}
+        <div className="relative mb-12">
+          {/* Road */}
+          <div className="h-3 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full mb-8 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-pulse"></div>
+            {/* Road markings */}
+            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white opacity-60 transform -translate-y-1/2">
+              <div className="flex justify-between items-center h-full">
+                <div className="w-8 h-0.5 bg-yellow-300 animate-ping"></div>
+                <div className="w-8 h-0.5 bg-yellow-300 animate-ping" style={{animationDelay: '0.5s'}}></div>
+                <div className="w-8 h-0.5 bg-yellow-300 animate-ping" style={{animationDelay: '1s'}}></div>
+                <div className="w-8 h-0.5 bg-yellow-300 animate-ping" style={{animationDelay: '1.5s'}}></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Animated Bus */}
+          <div className="relative">
+            <div className="inline-block animate-bounce" style={{animationDuration: '2s'}}>
+              <div className="relative">
+                {/* Bus Body */}
+                <div className="w-32 h-16 bg-gradient-to-r from-blue-500 to-orange-500 rounded-lg shadow-xl relative">
+                  {/* Windows */}
+                  <div className="absolute top-2 left-2 right-2 flex gap-1">
+                    <div className="flex-1 h-6 bg-gradient-to-b from-sky-200 to-sky-100 rounded-sm border border-white/50"></div>
+                    <div className="w-0.5 h-6 bg-blue-600"></div>
+                    <div className="flex-1 h-6 bg-gradient-to-b from-sky-200 to-sky-100 rounded-sm border border-white/50"></div>
+                    <div className="w-0.5 h-6 bg-blue-600"></div>
+                    <div className="flex-1 h-6 bg-gradient-to-b from-sky-200 to-sky-100 rounded-sm border border-white/50"></div>
+                  </div>
+                  
+                  {/* Door */}
+                  <div className="absolute top-2 right-1 w-4 h-10 bg-gradient-to-b from-gray-300 to-gray-400 rounded-sm border border-white/50"></div>
+                  
+                  {/* Bus details */}
+                  <div className="absolute bottom-1 left-2 right-2 h-1 bg-white/30 rounded-full"></div>
+                  
+                  {/* Headlights */}
+                  <div className="absolute top-6 -left-1 w-2 h-3 bg-yellow-300 rounded-full shadow-lg animate-pulse"></div>
+                  
+                  {/* Wheels */}
+                  <div className="absolute -bottom-3 left-3 w-6 h-6 bg-gray-800 rounded-full shadow-lg">
+                    <div className="absolute inset-1 bg-gray-600 rounded-full">
+                      <div className="absolute inset-1 bg-gray-400 rounded-full animate-spin">
+                        <div className="absolute top-0.5 left-1/2 w-0.5 h-1 bg-gray-200 transform -translate-x-1/2"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="absolute -bottom-3 right-3 w-6 h-6 bg-gray-800 rounded-full shadow-lg">
+                    <div className="absolute inset-1 bg-gray-600 rounded-full">
+                      <div className="absolute inset-1 bg-gray-400 rounded-full animate-spin">
+                        <div className="absolute top-0.5 left-1/2 w-0.5 h-1 bg-gray-200 transform -translate-x-1/2"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Exhaust smoke */}
+                <div className="absolute -right-8 top-4">
+                  <div className="w-2 h-2 bg-gray-300 rounded-full animate-ping opacity-60"></div>
+                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-ping opacity-40 ml-1 -mt-1" style={{animationDelay: '0.3s'}}></div>
+                  <div className="w-1 h-1 bg-gray-500 rounded-full animate-ping opacity-20 ml-2 -mt-1" style={{animationDelay: '0.6s'}}></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Floating destination tag */}
+            <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-blue-200">
+              <div className="text-sm font-semibold text-blue-600 flex items-center gap-2">
+                <span className="animate-pulse">📍</span>
+                {destination || "Your Destination"}
+              </div>
+            </div>
+
+            {/* Floating clouds */}
+            <div className="absolute -top-20 -left-20 opacity-40">
+              <div className="w-16 h-8 bg-white rounded-full animate-float"></div>
+              <div className="w-12 h-6 bg-white rounded-full -mt-2 ml-4 animate-float" style={{animationDelay: '1s'}}></div>
+            </div>
+            <div className="absolute -top-24 right-0 opacity-30">
+              <div className="w-20 h-10 bg-white rounded-full animate-float" style={{animationDelay: '2s'}}></div>
+              <div className="w-16 h-8 bg-white rounded-full -mt-3 ml-2 animate-float" style={{animationDelay: '3s'}}></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Loading Messages */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-orange-600 bg-clip-text text-transparent mb-4">
+            Creating Your Perfect Trip
+          </h2>
+          <div className="h-8 flex items-center justify-center">
+            <p className="text-xl text-gray-600 animate-fade-in-out" key={currentMessage}>
+              {loadingMessages[currentMessage]}
+            </p>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="flex justify-between text-sm text-gray-500 mb-2">
+            <span>Progress</span>
+            <span>{Math.round(progress)}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-blue-500 to-orange-500 rounded-full transition-all duration-300 relative"
+              style={{ width: `${progress}%` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-shimmer"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Trip Details */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/50">
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-blue-500">📍</span>
+              <span className="text-gray-600">Destination:</span>
+              <span className="font-semibold text-gray-800">{destination || "Selected"}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-green-500">📅</span>
+              <span className="text-gray-600">Duration:</span>
+              <span className="font-semibold text-gray-800">{days || "X"} days</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Fun fact */}
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-500 italic">
+            💡 Did you know? Our AI analyzes over 10,000 travel data points to create your perfect itinerary!
+          </p>
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+        @keyframes fade-in-out {
+          0% { opacity: 0; transform: translateY(10px); }
+          20% { opacity: 1; transform: translateY(0); }
+          80% { opacity: 1; transform: translateY(0); }
+          100% { opacity: 0; transform: translateY(-10px); }
+        }
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+        .animate-fade-in-out {
+          animation: fade-in-out 2s ease-in-out;
+        }
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+      `}</style>
+    </div>
+  );
+};
+
 function CreateTrip() {
   const [place, setPlace] = useState();
   const [formData, setFormData] = useState([]);
@@ -87,7 +289,6 @@ function CreateTrip() {
   };
 
   const SaveAiTrip = async (TripData) => {
-    setIsLoading(true);
     try {
       console.log("formdata", formData);
       console.log("Original TripData:", TripData);
@@ -191,6 +392,16 @@ function CreateTrip() {
       console.log("Login Error:", error);
     },
   });
+
+  // Show loading screen when generating trip
+  if (isLoading) {
+    return (
+      <TravelLoadingScreen 
+        destination={formData?.location?.formatted_address?.split(',')[0]} 
+        days={formData?.noOfDays}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
@@ -344,23 +555,18 @@ function CreateTrip() {
 
           {/* Generate Button */}
           <div className="mt-16 flex justify-center">
-            <div className="flex items-center gap-4">
-              {isLoading && (
-                <AiOutlineLoading3Quarters className="h-8 w-8 animate-spin text-orange-500" />
-              )}
-              <Button
-                disabled={isLoading}
-                onClick={OnGenerateTrips}
-                className="bg-gradient-to-r from-blue-500 to-orange-500 hover:from-blue-600 hover:to-orange-600 text-white font-bold py-4 px-12 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-              >
-                {isLoading ? "Generating Your Trip..." : "Generate Trip"}
-              </Button>
-            </div>
+            <Button
+              disabled={isLoading}
+              onClick={OnGenerateTrips}
+              className="bg-gradient-to-r from-blue-500 to-orange-500 hover:from-blue-600 hover:to-orange-600 text-white font-bold py-4 px-12 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              Generate Trip
+            </Button>
           </div>
         </div>
 
         {/* Login Dialog */}
-        <Dialog open={openDialog}>
+        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogContent className="rounded-2xl p-8 max-w-md mx-auto">
             <DialogHeader className="text-center">
               <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-orange-500 rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -376,11 +582,11 @@ function CreateTrip() {
             </DialogHeader>
 
             <div className="mt-8">
-              <img
-                src="logo.svg"
-                alt="App Logo"
-                className="mx-auto h-16 mb-6"
-              />
+              <div className="flex items-center justify-center mb-6">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-100 to-orange-100 rounded-lg">
+                  <span className="text-xl">✈️</span>
+                </div>
+              </div>
               <Button
                 onClick={login}
                 className="w-full bg-white hover:bg-gray-50 text-gray-800 border-2 border-gray-200 hover:border-gray-300 font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-4 text-lg shadow-md hover:shadow-lg transition-all duration-300"
