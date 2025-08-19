@@ -67,6 +67,7 @@ function Header() {
     googleLogout();
     setUser(null);
     console.log("User logged out");
+    navigate("/");
   };
 
   const handleHomeNavigation = () => {
