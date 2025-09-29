@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const apiKey = import.meta.env.VITE_GOOGLE_GEMINI_API_KEY;
-const MODEL_NAME = "models/gemini-1.5-flash"; // ✅ Fixed prefix
+const MODEL_NAME = "models/gemini-2.5-flash"; // ✅ Fixed prefix
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
