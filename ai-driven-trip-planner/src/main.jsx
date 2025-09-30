@@ -7,7 +7,7 @@ import CreateTrip from "./create-trip/index.jsx";
 import Header from "./components/custom/Header.jsx";
 import { Toaster } from "sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import Viewtrip from "./view-trip/[tripid]/index.jsx";
+import Viewtrip from "./view-trip/tripId/index.jsx";
 import MyTrip from "./my-trip/index.jsx";
 
 // Layout component that includes Header
